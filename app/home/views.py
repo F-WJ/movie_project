@@ -29,6 +29,7 @@ def register():
     return render_template("home/register.html")
 
 
+# 用户中心
 @home.route("/user/")
 def user():
     return render_template("home/user.html")
