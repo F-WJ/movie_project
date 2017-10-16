@@ -1,16 +1,9 @@
 # coding:utf8
 __author__ = 'FWJ'
 __date__ = 2017 / 8 / 9
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import pymysql
+from app import db
 
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:Qaz123456789@127.0.0.1:3306/movie"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-
-db = SQLAlchemy(app)
 
 
 # 会员
@@ -151,11 +144,16 @@ class Admin(db.Model):
     is_super = db.Column(db.SmallInteger)  # 是否为超级管理员， 0为超级管理员
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))  # 所属角色
     addtime = db.Column(db.DateTime, index=True, default=datetime.now)  # 添加时间
-    adminlogs = db.relationship("adminlog", backref='admin')  # 管理员操作日志外键关系关联
+    adminlogs = db.relationship("Adminlog", backref='admin')  # 管理员操作日志外键关系关联
     oplogs = db.relationship("Oplog", backref='admin')  # 管理员操作日志外键关系关联
 
     def __repr__(self):
         return "<Admin %r>" % self.name
+
+    # 验证哈希
+    def check_pwd(self, pwd):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.pwd, pwd)
 
 
 # 管理员登录日志
@@ -183,4 +181,25 @@ class Oplog(db.Model):
         return "<Oplog %r>" % self.id
 
 # if __name__ == "__main__":
-#     db.create_all()
+#     # 创建数据表
+# #     db.create_all()
+#     # 创建角色
+#     role = Role(
+#         name="超级管理员",
+#         auths=""
+#     )
+#     # 添加到数据库
+#     db.session.add(role)
+#     # 提交到数据库
+#     db.session.commit()
+#     # 添加管理员
+#     # 生成哈希密码
+#     from werkzeug.security import generate_password_hash
+#     admin = Admin(
+#         name="imoocmovie",
+#         pwd=generate_password_hash("imoocmovie"),
+#         is_super=0,
+#         role_id=1
+#     )
+#     db.session.add(admin)
+#     db.session.commit()
